@@ -1,5 +1,5 @@
 import React from 'react';
-import styles from './credits.module.css';
+import styles from './Credits.module.scss';
 
 function Credits({ author, link }) {
   return (
