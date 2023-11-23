@@ -17,6 +17,7 @@ class ApiUnsplash {
     return res.json();
   }
 }
+
 const apiUnsplash = new ApiUnsplash({
   url: `https://api.unsplash.com/search/photos`,
   accessKey: 'cLdjs2shhFSNIH3rNYbo00Y-Fk9Tk22AVYKo7OYb1Rk'
