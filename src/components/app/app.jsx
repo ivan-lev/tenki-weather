@@ -1,21 +1,26 @@
 // The weather data is coming from
 // https://www.weatherapi.com/
 
-import React from 'react';
-import ApiWeather from '../../utils/api-weather.js';
 import styles from './app.module.css';
-import Credits from '../Credits/Credits.jsx';
+
+import React, { useState, useEffect } from 'react';
+
+import ApiWeather from '../../utils/api-weather.js';
 import apiUnsplash from '../../utils/api-unsplash.js';
 
 import Main from '../Main/Main.jsx';
+import Footer from '../Footer/Footer.jsx';
+import Credits from '../Credits/Credits.jsx';
 
 function App() {
-  const [weatherData, setWeatherData] = React.useState('');
-  const [currentPosition, setCurrentPosition] = React.useState({});
-  const [isPositionReceived, setIsPositionReceived] = React.useState(false);
-  const [imageObject, setImageObject] = React.useState(null);
+  const [weatherData, setWeatherData] = useState('');
+  const [currentPosition, setCurrentPosition] = useState({});
+  const [isPositionReceived, setIsPositionReceived] = useState(false);
+  const [imageObject, setImageObject] = useState(null);
+  const [backImage, setBackImage] = useState('');
 
-  React.useEffect(() => {
+  // asking browser to give coordinates
+  useEffect(() => {
     if ('geolocation' in navigator) {
       navigator.geolocation.getCurrentPosition(function (position) {
         setCurrentPosition({
@@ -29,7 +34,8 @@ function App() {
     }
   }, []);
 
-  React.useEffect(() => {
+  // if coordinates received getting weather data
+  useEffect(() => {
     if (isPositionReceived) {
       ApiWeather.getWeather(currentPosition.latitude, currentPosition.longitude)
         .then(res => {
@@ -39,29 +45,32 @@ function App() {
     }
   }, [isPositionReceived]);
 
-  React.useEffect(() => {
+  // when weather data received getting an object with image data for the background
+  useEffect(() => {
     if (weatherData) {
       const currentWeather = weatherData.current.condition.text;
       apiUnsplash
-        .getPictures('небольшой снег')
+        .getPictures(currentWeather)
         .then(response => setImageObject(response.results[Math.floor(Math.random() * 10)]))
         .catch(error => console.log('Error getting images from Unsplash: ', error));
     }
   }, [weatherData]);
 
-  React.useEffect(() => {
+  // when getting the image object, set it to const which used as background
+  useEffect(() => {
     if (imageObject) {
-      document.body.style.backgroundImage = `url(${imageObject.urls.regular})`;
+      setBackImage(imageObject.urls.regular);
     }
   }, [imageObject]);
 
   return (
-    <div className={styles.page}>
+    <div className={styles.page} style={{ backgroundImage: `url(${backImage})`, margin: 0 }}>
       <Main weatherData={weatherData} />
-
-      {imageObject && (
-        <Credits author={imageObject?.user.name} link={imageObject?.user.links.html} />
-      )}
+      <Footer>
+        {imageObject && (
+          <Credits author={imageObject?.user.name} link={imageObject?.user.links.html} />
+        )}
+      </Footer>
     </div>
   );
 }
