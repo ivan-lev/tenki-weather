@@ -5,7 +5,7 @@ import styles from './app.module.css';
 
 import React, { useState, useEffect } from 'react';
 
-import ApiWeather from '../../utils/api-weather.js';
+import apiWeather from '../../utils/api-weather.js';
 import apiUnsplash from '../../utils/api-unsplash.js';
 
 import Main from '../Main/Main.jsx';
@@ -37,7 +37,8 @@ function App() {
   // if coordinates received getting weather data
   useEffect(() => {
     if (isPositionReceived) {
-      ApiWeather.getWeather(currentPosition.latitude, currentPosition.longitude)
+      apiWeather
+        .getWeather(currentPosition.latitude, currentPosition.longitude)
         .then(res => {
           setWeatherData(res);
         })
