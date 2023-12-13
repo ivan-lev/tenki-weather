@@ -7,6 +7,8 @@ import React, { useState, useEffect } from 'react';
 
 import apiWeather from '../../utils/api-weather.js';
 import apiUnsplash from '../../utils/api-unsplash.js';
+import apiTranslation from '../../utils/api-libretranslate.js';
+import getCityNameByCoords from '../../utils/api-nominatim.js';
 
 import Main from '../Main/Main.jsx';
 import Footer from '../Footer/Footer.jsx';
@@ -15,6 +17,7 @@ import Credits from '../Credits/Credits.jsx';
 function App() {
   const [weatherData, setWeatherData] = useState('');
   const [currentPosition, setCurrentPosition] = useState({});
+  const [placeName, setPlaceName] = useState('');
   const [isPositionReceived, setIsPositionReceived] = useState(false);
   const [imageObject, setImageObject] = useState(null);
   const [backImage, setBackImage] = useState('');
@@ -34,15 +37,20 @@ function App() {
     }
   }, []);
 
-  // if coordinates received getting weather data
+  // if coordinates received getting weather data and city name
   useEffect(() => {
     if (isPositionReceived) {
+      const { latitude, longitude } = currentPosition;
       apiWeather
-        .getWeather(currentPosition.latitude, currentPosition.longitude)
+        .getWeather(latitude, longitude)
         .then(res => {
           setWeatherData(res);
         })
         .catch(error => console.log('Error occured while getting weather: ', error));
+
+      getCityNameByCoords(latitude, longitude)
+        .then(res => setPlaceName(res))
+        .catch(error => console.log('Error getting city name: ', error));
     }
   }, [isPositionReceived]);
 
@@ -64,9 +72,11 @@ function App() {
     }
   }, [imageObject]);
 
+  //apiTranslation.getTranslation('снег').then(result => console.log(result));
+
   return (
     <div className={styles.page} style={{ backgroundImage: `url(${backImage})`, margin: 0 }}>
-      <Main weatherData={weatherData} />
+      <Main placeName={placeName} weatherData={weatherData} />
       <Footer>
         {imageObject && (
           <Credits author={imageObject?.user.name} link={imageObject?.user.links.html} />
